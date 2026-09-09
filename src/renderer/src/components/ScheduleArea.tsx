@@ -1,9 +1,10 @@
 import { useMemo } from 'react'
 import { format, isSameDay } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { CalendarDays, MapPin } from 'lucide-react'
+import { CalendarDays, MapPin, User } from 'lucide-react'
 import { useStore } from '../store'
 import { getCourseColor } from '../../../shared/courseColor'
+import { parseEventDescription } from '../../../shared/eventDetails'
 import CourseColorDot from './CourseColorDot'
 import type { ScheduleChange, ScheduleEvent } from '../../../shared/types'
 
@@ -70,6 +71,7 @@ export default function ScheduleArea(): JSX.Element {
             const change = changeFor(changes, ev.uid)
             const cancelled = ev.status === 'CANCELLED'
             const color = getCourseColor(ev.summary, settings.courseColors)
+            const details = parseEventDescription(ev.description)
             return (
               <div
                 key={ev.uid}
@@ -82,10 +84,22 @@ export default function ScheduleArea(): JSX.Element {
                 {!cancelled && <CourseColorDot summary={ev.summary} color={color} />}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="schedule-event-summary">{ev.summary}</div>
-                  {ev.location && (
-                    <div className="schedule-event-location">
-                      <MapPin size={10} style={{ verticalAlign: -1 }} /> {ev.location}
+                  {(ev.location || details.teacher) && (
+                    <div className="schedule-event-meta">
+                      {ev.location && (
+                        <span className="schedule-event-meta-item">
+                          <MapPin size={10} /> {ev.location}
+                        </span>
+                      )}
+                      {details.teacher && (
+                        <span className="schedule-event-meta-item">
+                          <User size={10} /> {details.teacher}
+                        </span>
+                      )}
                     </div>
+                  )}
+                  {details.otherLines.length > 0 && (
+                    <div className="schedule-event-groups">{details.otherLines.join(' · ')}</div>
                   )}
                 </div>
                 {change && change.kind === 'added' && <span className="schedule-event-flag added">Nouveau</span>}
