@@ -21,7 +21,9 @@ const api = {
   settings: {
     get: (): Promise<AppSettings> => ipcRenderer.invoke('settings:get'),
     setTheme: (theme: 'dark' | 'light'): Promise<AppSettings> =>
-      ipcRenderer.invoke('settings:setTheme', theme)
+      ipcRenderer.invoke('settings:setTheme', theme),
+    setCourseColor: (key: string, color: string | null): Promise<AppSettings> =>
+      ipcRenderer.invoke('settings:setCourseColor', key, color)
   },
   feeds: {
     list: (): Promise<FeedSource[]> => ipcRenderer.invoke('feeds:list'),

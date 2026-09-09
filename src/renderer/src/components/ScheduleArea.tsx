@@ -3,6 +3,8 @@ import { format, isSameDay } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { CalendarDays, MapPin } from 'lucide-react'
 import { useStore } from '../store'
+import { getCourseColor } from '../../../shared/courseColor'
+import CourseColorDot from './CourseColorDot'
 import type { ScheduleChange, ScheduleEvent } from '../../../shared/types'
 
 function capitalize(s: string): string {
@@ -14,7 +16,7 @@ function changeFor(changes: ScheduleChange[], uid: string): ScheduleChange | und
 }
 
 export default function ScheduleArea(): JSX.Element {
-  const { feeds, activeFeedId, eventsByFeed, changesByFeed, errorByFeed, loading } = useStore()
+  const { feeds, activeFeedId, eventsByFeed, changesByFeed, errorByFeed, loading, settings } = useStore()
   const activeFeed = feeds.find((f) => f.id === activeFeedId)
   const events = (activeFeedId && eventsByFeed[activeFeedId]) || []
   const changes = (activeFeedId && changesByFeed[activeFeedId]) || []
@@ -67,11 +69,17 @@ export default function ScheduleArea(): JSX.Element {
           {group.events.map((ev) => {
             const change = changeFor(changes, ev.uid)
             const cancelled = ev.status === 'CANCELLED'
+            const color = getCourseColor(ev.summary, settings.courseColors)
             return (
-              <div key={ev.uid} className={`schedule-event ${cancelled ? 'cancelled' : ''}`}>
+              <div
+                key={ev.uid}
+                className={`schedule-event ${cancelled ? 'cancelled' : ''}`}
+                style={cancelled ? undefined : { borderLeftColor: color }}
+              >
                 <div className="schedule-event-time">
                   {format(new Date(ev.start), 'HH:mm')} - {format(new Date(ev.end), 'HH:mm')}
                 </div>
+                {!cancelled && <CourseColorDot summary={ev.summary} color={color} />}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className="schedule-event-summary">{ev.summary}</div>
                   {ev.location && (

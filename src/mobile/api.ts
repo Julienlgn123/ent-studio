@@ -109,6 +109,14 @@ export const mobileApi: Api = {
       store.settings.theme = theme
       await persist(store)
       return store.settings
+    },
+    setCourseColor: async (key, color) => {
+      const store = await load()
+      if (!store.settings.courseColors) store.settings.courseColors = {}
+      if (color) store.settings.courseColors[key] = color
+      else delete store.settings.courseColors[key]
+      await persist(store)
+      return store.settings
     }
   },
   feeds: {

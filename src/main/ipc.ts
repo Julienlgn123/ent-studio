@@ -10,6 +10,7 @@ import {
   getSnapshot,
   removeFeed,
   renameFeed,
+  setCourseColor,
   setTheme
 } from './store'
 import type { FeedSource } from '../shared/types'
@@ -30,6 +31,10 @@ export function registerIpc(): void {
   ipcMain.handle('settings:get', () => getSettings())
   ipcMain.handle('settings:setTheme', (_, theme: 'dark' | 'light') => {
     setTheme(theme)
+    return getSettings()
+  })
+  ipcMain.handle('settings:setCourseColor', (_, key: string, color: string | null) => {
+    setCourseColor(key, color)
     return getSettings()
   })
 

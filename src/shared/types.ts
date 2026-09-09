@@ -43,4 +43,6 @@ export interface FeedRefreshResult {
 
 export interface AppSettings {
   theme?: 'dark' | 'light'
+  /** Cle = clef de cours (voir shared/courseColor.ts), valeur = couleur hex choisie manuellement. */
+  courseColors?: Record<string, string>
 }

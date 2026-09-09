@@ -105,3 +105,11 @@ export function setTheme(theme: 'dark' | 'light'): void {
   store.settings.theme = theme
   persist()
 }
+
+export function setCourseColor(key: string, color: string | null): void {
+  const store = load()
+  if (!store.settings.courseColors) store.settings.courseColors = {}
+  if (color) store.settings.courseColors[key] = color
+  else delete store.settings.courseColors[key]
+  persist()
+}

@@ -36,6 +36,7 @@ interface StoreState {
   refreshAll: () => Promise<void>
   applyRefreshResults: (results: FeedRefreshResult[]) => void
   saveTheme: (theme: 'dark' | 'light') => Promise<void>
+  setCourseColor: (key: string, color: string | null) => Promise<void>
   toast: (message: string, type?: ToastItem['type']) => void
   dismissToast: (id: string) => void
 }
@@ -132,6 +133,11 @@ export const useStore = create<StoreState>((set, get) => ({
 
   async saveTheme(theme) {
     const settings = await api().settings.setTheme(theme)
+    set({ settings })
+  },
+
+  async setCourseColor(key, color) {
+    const settings = await api().settings.setCourseColor(key, color)
     set({ settings })
   },
 
