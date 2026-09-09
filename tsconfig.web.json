@@ -15,5 +15,5 @@
       "@shared/*": ["src/shared/*"]
     }
   },
-  "include": ["src/renderer/src/**/*", "src/shared/**/*", "src/preload/index.ts"]
+  "include": ["src/renderer/src/**/*", "src/shared/**/*", "src/preload/index.ts", "src/mobile/**/*"]
 }

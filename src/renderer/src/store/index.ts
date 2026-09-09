@@ -1,8 +1,15 @@
 import { create } from 'zustand'
 import type { AppSettings, FeedRefreshResult, FeedSource, ScheduleChange, ScheduleEvent } from '../../../shared/types'
 
+// A function, not a top-level `const api = window.api`: this module is
+// reused verbatim by the Android build (src/mobile/main.tsx), where
+// `window.api` is assigned in application code AFTER this module's imports
+// are evaluated (ES import hoisting runs before any of main.tsx's own
+// statements) - capturing it eagerly here would freeze in `undefined`. On
+// Electron this makes no difference: the preload script sets window.api
+// before any page script runs at all, so a lazy lookup resolves the same.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const api = (window as any).api
+const api = () => (window as any).api
 
 interface ToastItem {
   id: string
@@ -46,12 +53,12 @@ export const useStore = create<StoreState>((set, get) => ({
   toasts: [],
 
   async loadAll() {
-    const [feeds, settings] = await Promise.all([api.feeds.list(), api.settings.get()])
+    const [feeds, settings] = await Promise.all([api().feeds.list(), api().settings.get()])
     const eventsByFeed: Record<string, ScheduleEvent[]> = {}
     const changesByFeed: Record<string, ScheduleChange[]> = {}
     const fetchedAtByFeed: Record<string, number> = {}
     for (const feed of feeds as FeedSource[]) {
-      const [snapshot, changes] = await Promise.all([api.feeds.snapshot(feed.id), api.feeds.lastChanges(feed.id)])
+      const [snapshot, changes] = await Promise.all([api().feeds.snapshot(feed.id), api().feeds.lastChanges(feed.id)])
       if (snapshot) {
         eventsByFeed[feed.id] = snapshot.events
         fetchedAtByFeed[feed.id] = snapshot.fetchedAt
@@ -70,16 +77,16 @@ export const useStore = create<StoreState>((set, get) => ({
   },
 
   async addFeed(name, url) {
-    const created = await api.feeds.add({ name, url })
+    const created = await api().feeds.add({ name, url })
     set((s) => ({ feeds: [...s.feeds, created], activeFeedId: s.activeFeedId ?? created.id }))
-    const result: FeedRefreshResult = await api.feeds.refresh(created.id)
+    const result: FeedRefreshResult = await api().feeds.refresh(created.id)
     get().applyRefreshResults([result])
     if (result.error) get().toast(result.error, 'error')
     else get().toast(`« ${created.name} » ajoute (${result.events.length} evenement(s))`, 'success')
   },
 
   async removeFeed(id) {
-    await api.feeds.remove(id)
+    await api().feeds.remove(id)
     set((s) => {
       const feeds = s.feeds.filter((f) => f.id !== id)
       const activeFeedId = s.activeFeedId === id ? (feeds[0]?.id ?? null) : s.activeFeedId
@@ -95,7 +102,7 @@ export const useStore = create<StoreState>((set, get) => ({
     if (get().feeds.length === 0) return
     set({ refreshing: true })
     try {
-      const results: FeedRefreshResult[] = await api.feeds.refreshAll()
+      const results: FeedRefreshResult[] = await api().feeds.refreshAll()
       get().applyRefreshResults(results)
       const totalChanges = results.reduce((n, r) => n + r.changes.length, 0)
       const failed = results.filter((r) => r.error)
@@ -124,7 +131,7 @@ export const useStore = create<StoreState>((set, get) => ({
   },
 
   async saveTheme(theme) {
-    const settings = await api.settings.setTheme(theme)
+    const settings = await api().settings.setTheme(theme)
     set({ settings })
   },
 

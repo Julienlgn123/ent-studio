@@ -42,7 +42,7 @@ export default function ScheduleArea(): JSX.Element {
       <div className="empty-state">
         <CalendarDays size={30} style={{ opacity: 0.3 }} />
         <div className="empty-state-title">Aucun emploi du temps selectionne</div>
-        <div className="empty-state-desc">Ajoute un flux depuis le panneau de gauche pour voir tes cours ici.</div>
+        <div className="empty-state-desc">Ajoute un flux pour voir tes cours ici.</div>
       </div>
     )
   }

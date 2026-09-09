@@ -97,9 +97,53 @@ jobs:
             dist-installer/*.yml
             dist-installer/*.blockmap
 
+  # ─── Android (APK) ────────────────────────────────────────────
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build mobile web bundle
+        run: npm run build:mobile
+
+      - name: Sync Capacitor Android project
+        run: npx cap sync android
+
+      # Pas de certificat de signature Android (comme pour macOS/Windows,
+      # aucun compte payant) : build "debug", installable en activant
+      # "Sources inconnues" sur le telephone - Android Studio Play Protect
+      # peut avertir a l'installation, c'est attendu pour un APK hors store.
+      - name: Build debug APK
+        run: cd android && chmod +x gradlew && ./gradlew assembleDebug
+
+      - name: Rename APK
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          mv android/app/build/outputs/apk/debug/app-debug.apk "android/app/build/outputs/apk/debug/ENT-Studio-${VERSION}.apk"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: android/app/build/outputs/apk/debug/ENT-Studio-*.apk
+
   # ─── Create Release ─────────────────────────────────────────
   release:
-    needs: [build-windows, build-mac, build-linux]
+    needs: [build-windows, build-mac, build-linux, build-android]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -154,8 +198,18 @@ jobs:
             | `ENT-Studio-*.AppImage` | Universel — toutes les distros |
             | `ENT-Studio-*.deb` | Debian / Ubuntu / Mint |
 
+            ### 🤖 Android
+            | Fichier | Description |
+            |---|---|
+            | `ENT-Studio-*.apk` | A installer directement sur le telephone |
+
+            > Pas de compte Google Play Developer : l'APK n'est pas signe pour un store,
+            > juste en debug. Pour l'installer : telecharge le `.apk`, ouvre-le, et
+            > autorise "Installer des applications inconnues" si Android le demande
+            > (Play Protect peut aussi avertir — normal pour une app hors store).
+
             ---
-            💾 Donnees stockees localement. 🔄 Mises a jour automatiques au demarrage.
+            💾 Donnees stockees localement. 🔄 Mises a jour automatiques au demarrage (desktop uniquement — verifie les nouvelles releases manuellement pour l'APK).
           files: dist-artifacts/**/*
           draft: false
           prerelease: false

@@ -15,7 +15,10 @@
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "dist": "electron-vite build && electron-builder --win",
     "dist:mac": "electron-vite build && electron-builder --mac",
-    "dist:linux": "electron-vite build && electron-builder --linux"
+    "dist:linux": "electron-vite build && electron-builder --linux",
+    "build:mobile": "vite build --config vite.mobile.config.ts",
+    "android:sync": "npm run build:mobile && npx cap sync android",
+    "android:build": "npm run android:sync && cd android && ./gradlew assembleDebug"
   },
   "build": {
     "appId": "com.ent-studio.app",
@@ -136,6 +139,8 @@
     }
   },
   "dependencies": {
+    "@capacitor/core": "^8.5.1",
+    "@capacitor/preferences": "^8.0.1",
     "date-fns": "^4.1.0",
     "electron-updater": "^6.8.9",
     "ical.js": "^2.2.1",
@@ -146,6 +151,8 @@
     "zustand": "^5.0.5"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.5.1",
+    "@capacitor/cli": "^8.5.1",
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^3.0.0",
     "@types/node": "^22.15.29",

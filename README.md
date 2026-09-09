@@ -35,6 +35,15 @@ derniere release, puis choisis ENT Studio dans son catalogue.
 > (« Editeur non identifie ») — normal pour un build independant, clique
 > *Informations complementaires → Executer quand meme*.
 
+### Android
+
+Telecharge le `.apk` depuis la
+[derniere release GitHub](https://github.com/Julienlgn123/ent-studio/releases/latest),
+ouvre-le sur ton telephone et autorise "Installer des applications inconnues"
+si Android le demande. Pas de compte Google Play Developer : l'APK n'est pas
+signe pour un store (juste en debug) et Play Protect peut afficher un
+avertissement — normal pour une app installee hors store.
+
 ## Comment recuperer le lien de ton emploi du temps
 
 Ca depend de ton ENT, mais en general :
@@ -71,9 +80,16 @@ n'est pas signale comme tel.
 | Couche | Techno |
 |---|---|
 | Desktop | Electron 35, electron-vite, electron-builder |
+| Android | Capacitor 8 (WebView + plugins natifs), meme UI React que le desktop |
 | UI | React 18, TypeScript, Zustand, Lucide, date-fns |
-| Flux | `node-ical` (analyse ICS), recuperation en process principal (pas de CORS) |
-| Donnees | Fichier JSON local (`userData/ent-studio-data.json`) — flux, dernier instantane, derniers changements |
+| Flux | `ical.js` (analyse ICS, sans dependance Node — partage entre desktop et Android) |
+| Reseau | `fetch` process principal sur desktop ; plugin `CapacitorHttp` (natif, sans CORS) sur Android |
+| Donnees | JSON local (`userData/ent-studio-data.json`) sur desktop ; `@capacitor/preferences` sur Android |
+
+Le code de parsing/diff ICS (`src/shared/ics.ts`) et la quasi-totalite de
+l'interface (`src/renderer/src/components/*`) sont partages tels quels entre
+les deux plateformes — seule la couche `window.api` differe
+(`src/preload/index.ts` cote Electron, `src/mobile/api.ts` cote Android).
 
 ## Limites connues
 
@@ -81,4 +97,7 @@ n'est pas signale comme tel.
   ne sont pas developpes en plusieurs occurrences (seule la date de base est
   prise en compte) — sans impact pour les flux ADE/Pronote, qui exportent deja
   chaque seance individuellement avec sa propre date.
-- Version Android (APK) prevue mais pas encore disponible.
+- L'APK Android n'est pas testee sur un appareil/emulateur reel (pas de SDK
+  Android disponible dans l'environnement de developpement) — verifiee via un
+  navigateur en taille d'ecran mobile avec les plugins Capacitor en mode web
+  (leur equivalent natif — HTTP et stockage — n'a pas pu etre teste directement).
