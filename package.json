@@ -1,0 +1,167 @@
+{
+  "name": "ent-studio",
+  "version": "0.1.0",
+  "description": "Suit ton emploi du temps ENT (flux ICS) et repere ce qui a change a chaque ouverture.",
+  "author": {
+    "name": "Julienlgn123",
+    "email": "129546749+Julienlgn123@users.noreply.github.com"
+  },
+  "main": "out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "start": "electron-vite dev",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "dist": "electron-vite build && electron-builder --win",
+    "dist:mac": "electron-vite build && electron-builder --mac",
+    "dist:linux": "electron-vite build && electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.ent-studio.app",
+    "productName": "ENT Studio",
+    "directories": {
+      "output": "dist-installer"
+    },
+    "files": [
+      "out/**/*",
+      "node_modules/**/*",
+      "!node_modules/.cache",
+      "!node_modules/**/*.map"
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ENT Studio",
+      "artifactName": "ENT-Studio-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "ENT-Studio-Portable-${version}.exe"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "artifactName": "ENT-Studio-${version}-${arch}.${ext}",
+      "category": "public.app-category.education",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
+    },
+    "dmg": {
+      "title": "ENT Studio ${version}",
+      "artifactName": "ENT-Studio-${version}-${arch}.dmg",
+      "window": {
+        "width": 540,
+        "height": 400
+      },
+      "contents": [
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        },
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 270,
+          "y": 300,
+          "type": "file",
+          "path": "resources/Fix-macOS-Signature.command"
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "category": "Education"
+    },
+    "appImage": {
+      "artifactName": "ENT-Studio-${version}.AppImage"
+    },
+    "deb": {
+      "artifactName": "ENT-Studio-${version}.deb"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Julienlgn123",
+      "repo": "ent-studio"
+    }
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "electron-updater": "^6.8.9",
+    "lucide-react": "^0.511.0",
+    "node-ical": "^0.20.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "uuid": "^9.0.1",
+    "zustand": "^5.0.5"
+  },
+  "devDependencies": {
+    "@electron-toolkit/preload": "^3.0.1",
+    "@electron-toolkit/utils": "^3.0.0",
+    "@types/node": "^22.15.29",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.5",
+    "@types/uuid": "^9.0.8",
+    "@vitejs/plugin-react": "^4.5.2",
+    "electron": "^35.3.0",
+    "electron-builder": "^26.15.3",
+    "electron-vite": "^3.1.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  },
+  "allowScripts": {
+    "electron@35.7.5": true,
+    "esbuild@0.25.12": true,
+    "electron-winstaller@5.4.0": true
+  }
+}
